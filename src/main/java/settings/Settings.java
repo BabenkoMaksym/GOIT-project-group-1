@@ -1,17 +1,51 @@
 package settings;
 
+import com.google.gson.Gson;
 import serviceClasses.Bank;
 import serviceClasses.CurrencyDataBase;
 
-import java.time.Duration;
-import java.time.LocalDateTime;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 public class Settings {
-    public static Map<Long, Setting> settings = new HashMap<>();
+    public static Map<Long, Setting> settings = new HashMap<Long, Setting>();
+    private static final Gson settingGson = new Gson();
+    private static final String SETTING_GSON_PATH = "src/main/resources/settings.json";
+
+    public synchronized static void save() {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(fileSettingsGsonCheck()))){
+            writer.write(settingGson.toJson(settings));
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public synchronized static void load() {
+        if (settings.isEmpty()) {
+            settings = settingGson.fromJson(fileSettingsGsonCheck().toString(), settings.getClass());
+        }
+    }
+
+    private static File fileSettingsGsonCheck() {
+        File settingGsonFile = new File(SETTING_GSON_PATH);
+        if (!settingGsonFile.exists()) {
+            System.out.println("Create Path for Gson file Serrings - " + settingGsonFile.getParentFile().mkdirs());
+            try {
+                System.out.println("Create new Gson file Settings - " + settingGsonFile.createNewFile());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+        return settingGsonFile;
+    }
+
+
+
     public static String getInfo (Long chatId) {
         StringBuilder messageToUser = new StringBuilder();
         Setting userSetting = settings.get(chatId);

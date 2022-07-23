@@ -1,7 +1,7 @@
 package settings;
 
 public enum Banks {
-    PRIVATE("ПриватБанк", "Private", false),
+    PRIVATE("ПриватБанк", "Private", true),
     MONO("МоноБанк", "Monobank", false),
     NBU("НБУ", "NBU", false);
 

@@ -43,9 +43,7 @@ public enum Currency {
     public static List<Currency> getSelectedCurrencyList() {
         List<Currency> selectedCurrency = new ArrayList<>();
         for (Currency curr : Currency.values()) {
-            if (curr.currencySelect) {
                 selectedCurrency.add(curr);
-            }
         }
         return selectedCurrency;
     }
