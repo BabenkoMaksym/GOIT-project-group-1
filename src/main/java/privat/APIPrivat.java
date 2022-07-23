@@ -10,7 +10,7 @@ public class APIPrivat {
     private static final String PRIVAT_URL = "https://api.privatbank.ua/p24api/pubinfo?json&exchange&coursid=5";
     private static final String PRIVAT_PLZ_URL = "https://api.privatbank.ua/p24api/pubinfo?exchange&json&coursid=12";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static Bank getPrivatAPI() throws IOException, InterruptedException {
         final List<Private> date = HttpUtil.sendGetBank(URI.create(PRIVAT_URL));
         final List<Private> datePlz = HttpUtil.sendGetBank(URI.create(PRIVAT_PLZ_URL));
         for (Private currency : datePlz) {
@@ -20,7 +20,7 @@ public class APIPrivat {
             }
         }
         System.out.println("API Privat " + date);
-        final Bank bank = HttpUtil.getPrivat(date);
-        System.out.println("Class "+bank.toString());
+        return HttpUtil.getPrivat(date);
+
     }
 }

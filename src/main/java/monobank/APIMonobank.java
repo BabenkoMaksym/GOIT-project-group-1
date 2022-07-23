@@ -11,10 +11,9 @@ public class APIMonobank {
 
     private static final String MONOBANK_URL = "https://api.monobank.ua/bank/currency";
 
-    public static void main(String[] args) throws IOException, InterruptedException {
+    public static Bank getMonoAPI() throws IOException, InterruptedException {
         final List<Monobank> monobankList = HttpUtil.sendGetBank(URI.create(MONOBANK_URL));
-        System.out.println("monobankList " + monobankList);
-        Bank Mono = HttpUtil.getMonobank(monobankList);
-        System.out.println("Bank Mono " + Mono);
+        System.out.println("API Mono " + monobankList);
+        return HttpUtil.getMonobank(monobankList);
     }
 }
