@@ -26,4 +26,13 @@ public enum Buttons {
     public String getNameEN() {
         return buttonsNameEN;
     }
+
+    public static Buttons convertToEnum (String text){
+        for (Buttons button: Buttons.values()) {
+            if (button.getNameEN().equals(text)) {
+                return button;
+            }
+        }
+        return null;
+    }
 }
