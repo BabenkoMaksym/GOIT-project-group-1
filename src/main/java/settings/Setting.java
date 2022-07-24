@@ -1,5 +1,7 @@
 package settings;
 
+import org.checkerframework.checker.units.qual.C;
+
 import java.util.List;
 
 public class Setting {
@@ -7,9 +9,9 @@ public class Setting {
     public Setting(long chatId) {
         this.chatId = chatId;
     }
-    private NumberOfDecimalPlaces numberOfDecimalPlaces = NumberOfDecimalPlaces.TWO;
+    private NumberOfDecimalPlaces numberOfDecimalPlaces = NumberOfDecimalPlaces.THREE;
     private Banks selectedBank = Banks.PRIVATE;
-    private List<Currency> selectedCurrency = Currency.getSelectedCurrencyList();
+    private Currency selectedCurrency = new Currency();
     private NotificationTime notificationTime = NotificationTime.NINE;
 
     public long getChatId() {
@@ -32,11 +34,11 @@ public class Setting {
         this.selectedBank = selectedBank;
     }
 
-    public List<Currency> getSelectedCurrency() {
+    public Currency getSelectedCurrency() {
         return selectedCurrency;
     }
 
-    public void setSelectedCurrency(List<Currency> selectedCurrency) {
+    public void setSelectedCurrency(Currency selectedCurrency) {
         this.selectedCurrency = selectedCurrency;
     }
 

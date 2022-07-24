@@ -1,0 +1,14 @@
+{
+  "603642450": {
+    "chatId": 603642450,
+    "numberOfDecimalPlaces": "THREE",
+    "selectedBank": "PRIVATE",
+    "selectedCurrency": [
+      "USD",
+      "EUR",
+      "PLN",
+      "BTC"
+    ],
+    "notificationTime": "NINE"
+  }
+}

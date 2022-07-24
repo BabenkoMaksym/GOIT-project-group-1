@@ -1,4 +1,6 @@
+import com.fasterxml.jackson.databind.ObjectMapper;
 import keyboards.*;
+import org.checkerframework.checker.units.qual.C;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -7,15 +9,19 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import settings.*;
 import settings.Currency;
+
+import java.io.IOException;
 import java.util.*;
+
+import static settings.Settings.fileSettingsGsonCheck;
 
 public class CurrencyInfoBot extends TelegramLongPollingBot {
     private static CurrencyInfoBot instance;
     public String value;
+    private Currency currency = new Currency();
 
     private CurrencyInfoBot(String value) {
         // The following code emulates slow initialization.
@@ -82,6 +88,19 @@ public class CurrencyInfoBot extends TelegramLongPollingBot {
                             "Ласкаво просимо.Цей бот дозволить відслідкувати актуальні курси валют.");
                     Setting setting = new Setting(chatId);
                     Settings.settings.put(chatId, setting);
+                    Settings.save();
+                    try {
+                        Map<Long, Setting> sss = new HashMap<>();
+                        sss = new ObjectMapper().readValue(fileSettingsGsonCheck(), sss.getClass());
+                        System.out.println(sss);
+                        Setting setting1 = sss.get(603642450);
+                        currency = setting1.getSelectedCurrency();
+                        currency.getCurrency().stream()
+                                .forEach(curr -> System.out.println(curr.isCurrSelected()));
+
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
             }
         } else {
@@ -184,31 +203,32 @@ public class CurrencyInfoBot extends TelegramLongPollingBot {
                 updateMessage(buttonQuery, MenuNotification.keyboard());
                 break;
             case "USD":
-                saveSelectionCurrency(Currency.USD);
+                saveSelectionCurrency("USD");
                 updateMessage(buttonQuery, MenuCurrency.keyboard());
                 break;
             case "EUR":
-                saveSelectionCurrency(Currency.EUR);
+                saveSelectionCurrency("EUR");
                 updateMessage(buttonQuery, MenuCurrency.keyboard());
                 break;
             case "PLN":
-                saveSelectionCurrency(Currency.PLN);
+                saveSelectionCurrency("PLN");
                 updateMessage(buttonQuery, MenuCurrency.keyboard());
                 break;
             case "BTC":
-                saveSelectionCurrency(Currency.BTC);
+                saveSelectionCurrency("BTC");
                 updateMessage(buttonQuery, MenuCurrency.keyboard());
                 break;
         }
     }
 
-    private void saveSelectionCurrency (Currency currencys) {
-    for (Currency cerrency:Currency.values()){
-        if (cerrency.name().equals(currencys.name())) {
-            currencys.setCurrencySelect(!currencys.isCurrencySelect());
+    private void saveSelectionCurrency(String currName) {
+        for (Currency.Curr curr : currency.getCurrency()) {
+            if (curr.getCurrName().equals(currName)) {
+                curr.setCurrSelected(!curr.isCurrSelected());
+            }
         }
     }
-    }
+
     private void saveSelectNumDecPlaces(NumberOfDecimalPlaces enumDate) {
         for (NumberOfDecimalPlaces date : NumberOfDecimalPlaces.values()) {
             if (date.name().equals(enumDate.name())) {
@@ -254,6 +274,7 @@ public class CurrencyInfoBot extends TelegramLongPollingBot {
                 .chatId(chatID)
                 .build());
     }
+
     private void updateMessage(CallbackQuery buttonQuery, InlineKeyboardMarkup keyboard)
             throws TelegramApiException {
         long chatId = buttonQuery.getMessage().getChatId();
@@ -265,41 +286,41 @@ public class CurrencyInfoBot extends TelegramLongPollingBot {
                 .build());
     }
 
-    private Buttons convertToButtons(String buttonQuery){
-        for (Buttons button: Buttons.values()) {
-            if (button.getNameEN().equals(buttonQuery)){
+    private Buttons convertToButtons(String buttonQuery) {
+        for (Buttons button : Buttons.values()) {
+            if (button.getNameEN().equals(buttonQuery)) {
                 return button;
             }
         }
         return null;
     }
 
-    public void checkMainButtons (CallbackQuery buttonQuery) throws TelegramApiException {
+    public void checkMainButtons(CallbackQuery buttonQuery) throws TelegramApiException {
         long chatId = buttonQuery.getMessage().getChatId();
         String dataButtonQuery = buttonQuery.getData();
-            switch (Objects.requireNonNull(convertToButtons(dataButtonQuery))) {
-                case GET_INFO:
-                    printMessage(chatId, Settings.getInfo(chatId));
-                    break;
-                case SETTINGS:
-                    printMessage(chatId, MenuSettings.keyboard(Settings.settings.get(chatId)), "Виберіть налаштування");
-                    break;
-                case BACK_TO_START:
-                    printMessage(chatId, MenuStart.keyboard(), "Щоб отримати інфо натисність кнопку");
-                    break;
-                case NUM_DECIMAL_PLACES:
-                    updateMessage(buttonQuery, MenuNumDecimalPlaces.keyboard());
-                    break;
-                case BANK:
-                    updateMessage(buttonQuery, MenuBanks.keyboard());
-                    break;
-                case CURRENCY:
-                    updateMessage(buttonQuery, MenuCurrency.keyboard());
-                    break;
-                case NOTIFICATION:
-                    updateMessage(buttonQuery, MenuNotification.keyboard());
-                    break;
-            }
+        switch (Objects.requireNonNull(convertToButtons(dataButtonQuery))) {
+            case GET_INFO:
+                printMessage(chatId, Settings.getInfo(chatId));
+                break;
+            case SETTINGS:
+                printMessage(chatId, MenuSettings.keyboard(Settings.settings.get(chatId)), "Виберіть налаштування");
+                break;
+            case BACK_TO_START:
+                printMessage(chatId, MenuStart.keyboard(), "Щоб отримати інфо натисність кнопку");
+                break;
+            case NUM_DECIMAL_PLACES:
+                updateMessage(buttonQuery, MenuNumDecimalPlaces.keyboard());
+                break;
+            case BANK:
+                updateMessage(buttonQuery, MenuBanks.keyboard());
+                break;
+            case CURRENCY:
+                updateMessage(buttonQuery, MenuCurrency.keyboard());
+                break;
+            case NOTIFICATION:
+                updateMessage(buttonQuery, MenuNotification.keyboard());
+                break;
+        }
     }
 }
 
