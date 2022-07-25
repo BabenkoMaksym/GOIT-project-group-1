@@ -1,7 +1,7 @@
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import settings.Settings;
-import java.time.Duration;
-import java.time.LocalDateTime;
+
+import java.time.*;
 import java.util.Map;
 
 public class Timer implements Runnable {
@@ -18,9 +18,10 @@ public class Timer implements Runnable {
     }
 
     public static void timer() throws InterruptedException, TelegramApiException {
-        LocalDateTime startTime = LocalDateTime.now();
-        LocalDateTime startDays = LocalDateTime.now().withHour(0).withMinute(0).withSecond(0);
-        LocalDateTime timeSendMessage = LocalDateTime.now().withMinute(0).withSecond(0);
+        ZonedDateTime Greenwich = ZonedDateTime.now().withZoneSameInstant(ZoneOffset.UTC);
+        LocalDateTime startTime = LocalDateTime.from(Greenwich);
+        LocalDateTime startDays = LocalDateTime.from(Greenwich).withHour(0).withMinute(0).withSecond(0);
+        LocalDateTime timeSendMessage = LocalDateTime.from(Greenwich).withMinute(0).withSecond(0);
         if (timeSendMessage.isBefore(startTime)) {
             timeSendMessage = timeSendMessage.plusHours(1);
         }
@@ -31,11 +32,12 @@ public class Timer implements Runnable {
             Long key = (Long) userSet.getKey();
             Long chatId = Settings.settings.get(key).getChatId();
             int userNotificationTime = Settings.settings.get(key).getNotificationTime().getTime();
-
-            if (userNotificationTime == (int) hour.toHours()) {
+            int userZoneId = Settings.settings.get(key).getZoneId().getZone();
+            if (userNotificationTime == (int) hour.toHours()+userZoneId) {
                 CurrencyInfoBot timer = CurrencyInfoBot.getInstance("timer");
                 timer.printMessage(chatId, Settings.getInfo(chatId));
             }
         }
     }
 }
+
